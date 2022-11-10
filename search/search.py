@@ -73,6 +73,33 @@ def tinyMazeSearch(problem):
     w = Directions.WEST
     return  [s, s, w, s, w, w, s, w]
 
+"""
+    resolucao do depthFirstSearch (DFS) de forma recursiva
+
+    problema: instancia do problema 
+    posicao: posicao atual do pacman
+    movimentos: quais movimentos o pacman deve fazer para encontrar a bolinha
+    percorridos: quais posicoes o algoritmo ja passou
+"""
+def DFSAux(problem, posicao, movimentos, percorridos):
+    # indica que ja percorri esta posicao
+    percorridos.push(posicao)
+
+    if(problem.isGoalState(posicao)):
+        return True
+    
+    # como a posicao atual nao e resposta, vamos percorrer os vizinhos
+    for (pos, direcao, _) in problem.getSuccessors(posicao):
+        # pula os que ja percorri para evitar loops
+        if (pos in percorridos.list):
+            continue
+        # verifica se percorrendo este vizinho, o mesmo acha o resultado
+        if DFSAux(problem, pos, movimentos, percorridos):
+            movimentos.push(direcao) # se encontra, devo ir por esta direcao
+            return True
+        
+            
+    return False
 
 def depthFirstSearch(problem: SearchProblem):
     """
@@ -84,27 +111,12 @@ def depthFirstSearch(problem: SearchProblem):
     To get started, you might want to try some of these simple commands to
     understand the search problem that is being passed in:
     """
+    movimentos = util.Queue()
+    percorridos = util.Stack()
+    posicao = problem.getStartState()
+    DFSAux(problem, posicao, movimentos, percorridos)
     
-
-    # print("Start:", problem.getStartState())
-    # print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    # print("Start's successors:", problem.getSuccessors(problem.getStartState()))
-    # DFSAux(problem.getStartState(), problem.isGoalState)
-
-    pilha = util.Stack()
-    fila = util.Queue()
-    pai = (problem.getStartState(), "", 0, 0, None)
-    DFSAux(problem, pai)
-    # for succ in problem.getSuccessors(problem.getStartState()):
-    #     print( problem.getSuccessors(succ[0]), type(succ[0]))
-    #     print()
-    # print(problem.getStartState() == problem.getStartState())
-    # while True:
-    #     i = 1
-
-    # resposta será uma fila, então teremos de contruí-la com uma pilha
-    return []
-    return ["South", "South"]
+    return movimentos.list
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
