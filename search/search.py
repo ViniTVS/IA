@@ -118,10 +118,36 @@ def depthFirstSearch(problem: SearchProblem):
     
     return movimentos.list
 
+
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    
+    
+    movimentos = []
+    para_percorrer = util.Queue()
+    percorridos = util.Stack()
+    posicao = problem.getStartState()
+    para_percorrer.push([posicao, movimentos, 0])
+
+    while not para_percorrer.isEmpty():
+        (pos_atual, mov_atual, c_atual) = para_percorrer.pop()
+        
+        if pos_atual in percorridos.list:
+            continue
+        
+        percorridos.push(pos_atual)
+
+        if problem.isGoalState(pos_atual):
+            return mov_atual
+
+        # como a posicao atual nao e resposta, vamos percorrer os vizinhos
+        for (pos_filho, mov_filho, c_filho) in problem.getSuccessors(pos_atual):
+            custo = c_atual + c_filho
+            mov = mov_atual + [mov_filho]            
+            para_percorrer.push([pos_filho, mov, custo])
+
+    return []
 
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
