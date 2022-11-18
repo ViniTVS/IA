@@ -191,7 +191,34 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    # basicamente o uniformCostSearch, mas usando uma heuristica para determinar 
+    # o custo de tomar certo caminho
+    movimentos = [] # movimentos feitos para chegar em sua pos.
+    posicao = problem.getStartState()
+    percorridos = util.Stack()
+    # fila com prioridade com os caminhos ainda não percorridos
+    para_percorrer = util.PriorityQueue()
+    para_percorrer.push([posicao, movimentos, 0], 0)
+
+    while not para_percorrer.isEmpty():
+        (pos_atual, mov_atual, c_atual) = para_percorrer.pop()
+        
+        if pos_atual in percorridos.list: # já processado
+            continue
+        
+        percorridos.push(pos_atual)
+
+        if problem.isGoalState(pos_atual): #chegamos à resposta
+            return mov_atual
+
+        # como a posicao atual nao e resposta, vamos percorrer os vizinhos
+        for (pos_filho, mov_filho, c_filho) in problem.getSuccessors(pos_atual):
+            # atualiza custo para este filho e o caminho para chegar
+            custo = c_atual + c_filho
+            mov = mov_atual + [mov_filho]            
+            para_percorrer.push([pos_filho, mov, custo], custo + heuristic(pos_filho, problem))
+
+    return []
 
 
 # Abbreviations
