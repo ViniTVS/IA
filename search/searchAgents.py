@@ -293,8 +293,7 @@ class CornersProblem(search.SearchProblem):
         # in initializing the problem
         "*** YOUR CODE HERE ***"
         # única alteração: salvar o num. de cantos
-        self.num_corners = len(self.corners)
-        
+        self.num_corners = len(self.corners)    
 
     def getStartState(self):
         """
@@ -388,7 +387,23 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    # baseia a heurística como a distância até o canto mais longe 
+
+    pos_atual = state[0]
+    # garante que não estamos tentando calcular uma parede
+    if pos_atual in walls:
+        return 999999999
+
+    cantos_estado = state[1]
+    maior_dist = 0
+    for i in range(problem.num_corners):
+        # se o canto ainda não foi percorrido, calcula a distancia até ele
+        if (cantos_estado[i] == 0):
+            aux = util.manhattanDistance(pos_atual, corners[i])
+            if (aux > maior_dist):
+                maior_dist = aux
+            
+    return maior_dist
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
