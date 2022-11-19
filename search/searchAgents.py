@@ -292,8 +292,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        # única alteração: salvar o num. de cantos
-        self.num_corners = len(self.corners)    
+        self.num_corners = len(self.corners)
+        self.startingGameState = startingGameState
 
     def getStartState(self):
         """
@@ -399,7 +399,10 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     for i in range(problem.num_corners):
         # se o canto ainda não foi percorrido, calcula a distancia até ele
         if (cantos_estado[i] == 0):
-            aux = util.manhattanDistance(pos_atual, corners[i])
+            # a gente pode utilizar a mazeDistance no lugar da manhattanDistance, 
+            # mas acaba demorando mais, apesar de expandir menos nodos
+            # aux = mazeDistance(pos_atual, corners[i], problem.startingGameState)
+            aux =  util.manhattanDistance(pos_atual, corners[i])
             if (aux > maior_dist):
                 maior_dist = aux
             
@@ -497,7 +500,26 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+    
+    maior_dist = 0
+    pos_comidas = foodGrid.asList()
+    if pos_comidas:
+        """ 
+        utilizar um map e obter sua maior dist. é mais rápido que iterar sob a lista de comidas,
+        calcular a dist. e atualizar a var. maior_dist, como o exemplo abaixo:
+
+        for pos_comida in pos_comidas:
+            dist = mazeDistance(pos_comida, position, problem.startingGameState)
+            if (dist > maior_dist):
+                maior_dist = dist
+        """
+        maior_dist = max(
+            map(
+                lambda pos_comida: mazeDistance(pos_comida, position, problem.startingGameState), pos_comidas
+            )
+        )
+
+    return maior_dist
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
