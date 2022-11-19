@@ -292,7 +292,8 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        
+        # única alteração: salvar o num. de cantos
+        self.num_corners = len(self.corners)
         
 
     def getStartState(self):
@@ -301,17 +302,24 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        return self.startingPosition
+        # o estado inicial é a pos inicial e umas lista indicando se foram encontrados todos
+        # os cantos
+        vet = [0 for i in range(len(self.corners))]
+        # verifica se a posição inicial já não é um dos cantos
+        for i in range(self.num_corners):
+            if self.corners[i] == self.startingPosition:
+                vet[i] = 1
+                break
+        return ((self.startingPosition, vet))
 
     def isGoalState(self, state: Any):
         """
         Returns whether this search state is a goal state of the problem.
         """
         "*** YOUR CODE HERE ***"
-        # basta obter os cantos e marcá-lo como verdadeiro se for um deles
-        if state in self.corners:
-            return True
-        return False
+        # se ainda tiver 0s no vetor, este não é um estado de resposta
+                
+        return not (0 in state[1])
 
     def getSuccessors(self, state: Any):
         """
@@ -323,12 +331,11 @@ class CornersProblem(search.SearchProblem):
             state, 'action' is the action required to get there, and 'stepCost'
             is the incremental cost of expanding to that successor
         """
-
         successors = []
         for action in [Directions.NORTH, Directions.SOUTH, Directions.EAST, Directions.WEST]:
             # Add a successor state to the successor list if the action is legal
             # Here's a code snippet for figuring out whether a new position hits a wall:
-            x,y = state
+            x,y = state[0]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
@@ -337,7 +344,15 @@ class CornersProblem(search.SearchProblem):
             # se não bate na parede, só adicionar na lista de sucessores
             if not hitsWall:
                 nova_pos = (nextx, nexty)
-                successors.append((nova_pos, action, 1))
+                # copia os elementos vo vetor da posicao atual p/ a nova
+                novo_vet = state[1].copy()
+                # verifica se a nova posição é um dos cantos e atualiza vetor se for
+                for i in range(self.num_corners):
+                    if self.corners[i] == nova_pos:
+                        novo_vet[i] = 1
+                        break
+                
+                successors.append(((nova_pos, novo_vet), action, 1))
         
         self._expanded += 1 # DO NOT CHANGE
         return successors
