@@ -301,8 +301,8 @@ class CornersProblem(search.SearchProblem):
         space)
         """
         "*** YOUR CODE HERE ***"
-        # o estado inicial é a pos inicial e umas lista indicando se foram encontrados todos
-        # os cantos
+        # o estado inicial é a pos inicial e umas lista indicando se foram 
+        # encontrados todos os cantos
         vet = [0 for i in range(len(self.corners))]
         # verifica se a posição inicial já não é um dos cantos
         for i in range(self.num_corners):
@@ -388,7 +388,6 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
 
     "*** YOUR CODE HERE ***"
     # baseia a heurística como a distância até o canto mais longe 
-
     pos_atual = state[0]
     # garante que não estamos tentando calcular uma parede
     if pos_atual in walls:
@@ -500,7 +499,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    
+    # como no cornersHeuristic, vamos calcular a dist. p/ comida mais longe
     maior_dist = 0
     pos_comidas = foodGrid.asList()
     if pos_comidas:
@@ -515,7 +514,7 @@ def foodHeuristic(state: Tuple[Tuple, List[List]], problem: FoodSearchProblem):
         """
         maior_dist = max(
             map(
-                lambda pos_comida: mazeDistance(pos_comida, position, problem.startingGameState), pos_comidas
+                lambda pos: mazeDistance(pos, position, problem.startingGameState), pos_comidas
             )
         )
 
@@ -550,7 +549,9 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # como o objetivo é achar o mais próximo, podemos usar o BFS, que só busca se importa com dist.
+        # poderiamos usar o uniform cost ou A* se fosse para encontrar o caminho mais "barato"
+        return search.breadthFirstSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -584,9 +585,9 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         complete the problem definition.
         """
         x,y = state
-
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # só indica se a pos. atual é ou não comida
+        return self.food[x][y]
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
     """

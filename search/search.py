@@ -97,8 +97,7 @@ def DFSAux(problem, posicao, movimentos, percorridos):
         if DFSAux(problem, pos, movimentos, percorridos):
             movimentos.push(direcao) # se encontra, devo ir por esta direcao
             return True
-        
-            
+    # não foi encontrado caminho
     return False
 
 def depthFirstSearch(problem: SearchProblem):
@@ -146,7 +145,7 @@ def breadthFirstSearch(problem: SearchProblem):
             custo = c_atual + c_filho
             mov = mov_atual + [mov_filho]            
             para_percorrer.push([pos_filho, mov, custo])
-
+    # não existe estado que seja objetivo
     return []
 
 def uniformCostSearch(problem: SearchProblem):
@@ -163,15 +162,12 @@ def uniformCostSearch(problem: SearchProblem):
 
     while not para_percorrer.isEmpty():
         (pos_atual, mov_atual, c_atual) = para_percorrer.pop()
-        
         if pos_atual in percorridos.list: # já processado
             continue
         
         percorridos.push(pos_atual)
-
         if problem.isGoalState(pos_atual): #chegamos à resposta
             return mov_atual
-
         # como a posicao atual nao e resposta, vamos percorrer os vizinhos
         for (pos_filho, mov_filho, c_filho) in problem.getSuccessors(pos_atual):
             # atualiza custo para este filho e o caminho para chegar
