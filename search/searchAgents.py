@@ -303,7 +303,7 @@ class CornersProblem(search.SearchProblem):
         "*** YOUR CODE HERE ***"
         # o estado inicial é a pos inicial e umas lista indicando se foram 
         # encontrados todos os cantos
-        vet = [0 for i in range(len(self.corners))]
+        vet = [0 for i in range(self.num_corners)]
         # verifica se a posição inicial já não é um dos cantos
         for i in range(self.num_corners):
             if self.corners[i] == self.startingPosition:
@@ -317,7 +317,6 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         # se ainda tiver 0s no vetor, este não é um estado de resposta
-                
         return not (0 in state[1])
 
     def getSuccessors(self, state: Any):
@@ -343,8 +342,7 @@ class CornersProblem(search.SearchProblem):
             # se não bate na parede, só adicionar na lista de sucessores
             if not hitsWall:
                 nova_pos = (nextx, nexty)
-                # copia os elementos vo vetor da posicao atual p/ a nova
-                novo_vet = state[1].copy()
+                novo_vet = state[1].copy() # copia os elementos, não é pra utilizar o vetor original
                 # verifica se a nova posição é um dos cantos e atualiza vetor se for
                 for i in range(self.num_corners):
                     if self.corners[i] == nova_pos:
@@ -400,8 +398,8 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
         if (cantos_estado[i] == 0):
             # a gente pode utilizar a mazeDistance no lugar da manhattanDistance, 
             # mas acaba demorando mais, apesar de expandir menos nodos
-            # aux = mazeDistance(pos_atual, corners[i], problem.startingGameState)
-            aux =  util.manhattanDistance(pos_atual, corners[i])
+            aux = mazeDistance(pos_atual, corners[i], problem.startingGameState)
+            # aux =  util.manhattanDistance(pos_atual, corners[i])
             if (aux > maior_dist):
                 maior_dist = aux
             
@@ -551,7 +549,7 @@ class ClosestDotSearchAgent(SearchAgent):
         "*** YOUR CODE HERE ***"
         # como o objetivo é achar o mais próximo, podemos usar o BFS, que só busca se importa com dist.
         # poderiamos usar o uniform cost ou A* se fosse para encontrar o caminho mais "barato"
-        return search.breadthFirstSearch(problem)
+        return search.aStarSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """

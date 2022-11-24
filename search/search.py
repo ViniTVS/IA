@@ -120,7 +120,9 @@ def depthFirstSearch(problem: SearchProblem):
 
 def breadthFirstSearch(problem: SearchProblem):
     """Search the shallowest nodes in the search tree first."""
-    "*** YOUR CODE HERE ***"   
+    "*** YOUR CODE HERE ***"
+    # como é uma busca em largura, preciso marcar os nodos percorridos e 
+    # os restantes
     movimentos = [] # movimentos feitos para chegar em sua pos.
     posicao = problem.getStartState()
     percorridos = util.Stack()
@@ -151,7 +153,7 @@ def breadthFirstSearch(problem: SearchProblem):
 def uniformCostSearch(problem: SearchProblem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
-    # basicamente o problema anterior, mas usando uma fila com prioridades,
+    # basicamente o breadthFirstSearch, mas usando uma fila com prioridades,
     # que será definida pelo custo de cada caminho
     movimentos = [] # movimentos feitos para chegar em sua pos.
     posicao = problem.getStartState()
@@ -162,19 +164,19 @@ def uniformCostSearch(problem: SearchProblem):
 
     while not para_percorrer.isEmpty():
         (pos_atual, mov_atual, c_atual) = para_percorrer.pop()
-        if pos_atual in percorridos.list: # já processado
+        if pos_atual in percorridos.list: # já processado, pula
             continue
         
         percorridos.push(pos_atual)
         if problem.isGoalState(pos_atual): #chegamos à resposta
             return mov_atual
-        # como a posicao atual nao e resposta, vamos percorrer os vizinhos
+        # como a posicao atual não é resposta, vamos percorrer os vizinhos
         for (pos_filho, mov_filho, c_filho) in problem.getSuccessors(pos_atual):
-            # atualiza custo para este filho e o caminho para chegar
+            # atualiza custo para este filho e o caminho para chegar até ele
             custo = c_atual + c_filho
             mov = mov_atual + [mov_filho]            
             para_percorrer.push([pos_filho, mov, custo], custo)
-
+    # não acho objetivo
     return []
 
 def nullHeuristic(state, problem=None):
@@ -209,7 +211,7 @@ def aStarSearch(problem: SearchProblem, heuristic=nullHeuristic):
 
         # como a posicao atual nao e resposta, vamos percorrer os vizinhos
         for (pos_filho, mov_filho, c_filho) in problem.getSuccessors(pos_atual):
-            # atualiza custo para este filho e o caminho para chegar
+            # atualiza custo para este filho e o caminho até ele
             custo = c_atual + c_filho
             mov = mov_atual + [mov_filho]            
             para_percorrer.push([pos_filho, mov, custo], custo + heuristic(pos_filho, problem))
