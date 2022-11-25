@@ -302,14 +302,14 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         # o estado inicial é a pos inicial e umas lista indicando se foram 
-        # encontrados todos os cantos
-        vet = [0 for i in range(self.num_corners)]
+        # encontrados todos os cantos (com 0s e 1s)
+        lista = [0 for i in range(self.num_corners)]
         # verifica se a posição inicial já não é um dos cantos
         for i in range(self.num_corners):
             if self.corners[i] == self.startingPosition:
-                vet[i] = 1
+                lista[i] = 1
                 break
-        return ((self.startingPosition, vet))
+        return ((self.startingPosition, lista))
 
     def isGoalState(self, state: Any):
         """
@@ -396,8 +396,8 @@ def cornersHeuristic(state: Any, problem: CornersProblem):
     for i in range(problem.num_corners):
         # se o canto ainda não foi percorrido, calcula a distancia até ele
         if (cantos_estado[i] == 0):
-            # a gente pode utilizar a mazeDistance no lugar da manhattanDistance, 
-            # mas acaba demorando mais, apesar de expandir menos nodos
+            # a gente pode utilizar a mazeDistance ou manhattanDistance
+            # mazeDistance leva mais tempo pra calcular, mas expande menos nodos
             aux = mazeDistance(pos_atual, corners[i], problem.startingGameState)
             # aux =  util.manhattanDistance(pos_atual, corners[i])
             if (aux > maior_dist):
@@ -549,6 +549,7 @@ class ClosestDotSearchAgent(SearchAgent):
         "*** YOUR CODE HERE ***"
         # como o objetivo é achar o mais próximo, podemos usar o BFS, que só busca se importa com dist.
         # poderiamos usar o uniform cost ou A* se fosse para encontrar o caminho mais "barato"
+        # (como não foi definida heurística, o A* funciona como BFS)
         return search.aStarSearch(problem)
 
 class AnyFoodSearchProblem(PositionSearchProblem):
@@ -584,7 +585,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         """
         x,y = state
         "*** YOUR CODE HERE ***"
-        # só indica se a pos. atual é ou não comida
+        # como o objetivo é resolver "microproblemas", que cada um será buscar uma comida 
+        # por vez, basta indicar se a pos. atual é ou não comida
         return self.food[x][y]
 
 def mazeDistance(point1: Tuple[int, int], point2: Tuple[int, int], gameState: pacman.GameState) -> int:
