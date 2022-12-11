@@ -50,6 +50,7 @@ class ReflexAgent(Agent):
         chosenIndex = random.choice(bestIndices) # Pick randomly among the best
 
         "Add more of your code here if you want to"
+        
 
         return legalMoves[chosenIndex]
 
@@ -75,53 +76,34 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
         "*** YOUR CODE HERE ***"
+        score = successorGameState.getScore()
         
-        menorDist = 0
-        maiorDist = 0
+        distFantasma = 99999
+        distAmendrontado = 99999
         for ghostState in newGhostStates:
             dist = manhattanDistance(newPos, ghostState.getPosition())
             # vamos morrer :(
             if (ghostState.scaredTimer == 0 and dist <= 1):
                 return -1
+            spawn = ghostState.start.pos
 
-
-            if (dist > ghostState.scaredTimer):
-                dist = -dist
-            menorDist = min(dist, menorDist)
-            maiorDist = max(dist, maiorDist)
-
+            if (dist <= ghostState.scaredTimer and manhattanDistance(newPos, spawn) > 1):
+                distAmendrontado = min(dist, distAmendrontado)
+            else:
+                distFantasma = min(dist, distFantasma)
+        
+        distFantasma = 10 / distFantasma
+        
+        distAmendrontado = 300 / max(distAmendrontado, 1)
+            
         if newPos in newFood.asList():
-            return  successorGameState.getScore() + 10
-
-        if (menorDist < 0):
-            distFantasma = menorDist
-        else: 
-            distFantasma = maiorDist
-        # print(distFantasma)
-        # print(distFantasma)
-        # print(len(newFood.asList()))
-        distComida = min(
-            [manhattanDistance(comida, newPos) for comida in newFood.asList()], default=1
-        )
-        # for comida in newFood.asList():
-        #     print(comida)
-        # print(distFantasma)
-
-        # for ghostState in newGhostStates:
-        #     print(ghostState.getPosition())
-            # print(ghostState.pos)
-            # print(ghostState.configuration)
-            # print(ghostState.isPacman)
-            # print(ghostState.scaredTimer)
-            # print(ghostState.numCarrying)
-            # print(ghostState.numReturned)
-        # print(newGhostStates.start)
-        # print(newScaredTimes)
-        # time.sleep(1)
-        # if newScaredTimes > 0:
-        #     return successorGameState.getScore() - distFantasma
-
-        return successorGameState.getScore() + 1/distFantasma + 1/distComida
+            distComida = 10
+        else:
+            distComida = 10 / min(
+                [manhattanDistance(comida, newPos) for comida in newFood.asList()], default=1
+            )
+            
+        return score + distAmendrontado + distComida - distFantasma 
 
 def scoreEvaluationFunction(currentGameState: GameState):
     """
