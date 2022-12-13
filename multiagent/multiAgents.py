@@ -294,7 +294,59 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # num. de fantasmas no game
+        self.ghosts = gameState.getNumAgents() - 1
+        self.move = gameState.getLegalActions(0)[0] 
+
+        self.MaxAgent(gameState, 0)
+
+        return self.move
+
+    # Funçõe auxiliares
+    def endAgent(self, gameState: GameState, depth):
+        return gameState.isWin() or gameState.isLose() or depth == self.depth
+
+    def MaxAgent(self, gameState: GameState, depth):
+        if self.endAgent(gameState, depth):
+            return self.evaluationFunction(gameState)
+
+        # calculamos o melhor caso de cada movimento possível
+        val = float("-inf")
+        best_action = gameState.getLegalActions(0)[0]
+        for action in gameState.getLegalActions(0):
+            aux = self.MinAgent(gameState.generateSuccessor(0, action), depth, 1)
+            if (aux > val):
+                val = aux
+                best_action = action
+        # atualiza movimento a se fazer
+        if (depth == 0):
+            self.move = best_action
+        return val
+
+    def MinAgent(self, gameState: GameState, depth, ghost):
+        if self.endAgent(gameState, depth):
+            return self.evaluationFunction(gameState)
+
+        # calculamos o pior caso de cada movimento possível
+        val = float("inf")
+        # vetor com as opções de escolha
+        options = []
+        for action in gameState.getLegalActions(ghost):
+            if (ghost == self.ghosts):
+                # o último fantasma precisa selecionar o movimento do pacman que vai maximizar os pontos
+                new_val = self.MaxAgent(gameState.generateSuccessor(self.ghosts, action), depth + 1)
+                
+            else:
+                # também precisa selecionar os movimentos dos outros fantasmas 
+                # que vão minimizar os pontos e verificar a pontuação feita
+                new_val = self.MinAgent(gameState.generateSuccessor(ghost, action), depth, ghost + 1)
+                
+            options.append(new_val)
+        
+        # o valor final passa a ser a média deste vetor
+        val = sum(options) / len(options)
+
+        return val
 
 def betterEvaluationFunction(currentGameState: GameState):
     """
