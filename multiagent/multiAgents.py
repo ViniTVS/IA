@@ -139,38 +139,6 @@ class MinimaxAgent(MultiAgentSearchAgent):
     """
     Your minimax agent (question 2)
     """
-    def endAgent(self, gameState: GameState, depth):
-        return gameState.isWin() or gameState.isLose() or depth == self.depth
-
-    def MaxAgent(self, gameState: GameState, depth):
-        if self.endAgent(gameState, depth):
-            return self.evaluationFunction(gameState)
-
-        # calculamos cada ação possível
-        val = -10000000000000000
-        for action in gameState.getLegalActions(0):
-            val = max(
-                self.MinAgent(gameState.generateSuccessor(0, action), depth + 1), val
-            )
-        return val
-
-    def MinAgent(self, gameState: GameState, depth):
-        if self.endAgent(gameState, depth):
-            return self.evaluationFunction(gameState)
-
-        val = 10000000000000000
-        for i in range(1, self.fantasmas):
-            valAcoesFantasmas = []        
-            for action in gameState.getLegalActions(i):
-                val = min(
-                    self.MaxAgent(gameState.generateSuccessor(i, action), depth), val
-                )
-
-        val = min(
-            self.MaxAgent(gameState.generateSuccessor(self.fantasmas, action), depth + 1), val
-        )
-            
-        return val
 
 
     def getAction(self, gameState: GameState):
@@ -197,64 +165,105 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        # GhostIndex = [i for i in range(1, gameState.getNumAgents())]
+        # num. de fantasmas no game
+        self.ghosts = gameState.getNumAgents() - 1
 
-        # def term(state, d):
-        #     return state.isWin() or state.isLose() or d == self.depth
-
-        # def min_value(state, d, ghost):  # minimizer
-
-        #     if term(state, d):
-        #         return self.evaluationFunction(state)
-
-        #     v = 10000000000000000
-        #     for action in state.getLegalActions(ghost):
-        #         if ghost == GhostIndex[-1]:
-        #             v = min(v, max_value(state.generateSuccessor(ghost, action), d + 1))
-        #         else:
-        #             v = min(v, min_value(state.generateSuccessor(ghost, action), d, ghost + 1))
-        #     # print(v)
-        #     print("min:", v)
-        #     return v
-
-        # def max_value(state, d):  # maximizer
-
-        #     if term(state, d):
-        #         return self.evaluationFunction(state)
-
-        #     v = -10000000000000000
-        #     for action in state.getLegalActions(0):
-        #         v = max(v, min_value(state.generateSuccessor(0, action), d, 1))
-        #     # print(v)
-        #     print("max:", v)
-        #     return v
-
-        # res = [(action, min_value(gameState.generateSuccessor(0, action), 0, 1)) for action in
-        #        gameState.getLegalActions(0)]
-        # res.sort(key=lambda k: k[1])
-
-        # return res[-1][0]
-        self.fantasmas = len([i for i in range(1, gameState.getNumAgents())])
-
-        res = [(action, self.MinAgent(gameState.generateSuccessor(0, action), 0)) for action in
+        res = [(action, self.MinAgent(gameState.generateSuccessor(0, action), 0, 1)) for action in
                gameState.getLegalActions(0)]
         res.sort(key=lambda k: k[1])
 
         return res[-1][0]
-        return self.endingAction
-        util.raiseNotDefined()
+
+    # Funçõe auxiliares
+    def endAgent(self, gameState: GameState, depth):
+        return gameState.isWin() or gameState.isLose() or depth == self.depth
+
+    def MaxAgent(self, gameState: GameState, depth):
+        if self.endAgent(gameState, depth):
+            return self.evaluationFunction(gameState)
+
+        # calculamos o melhor caso de cada movimento possível
+        val = -9223372036854775807
+        for action in gameState.getLegalActions(0):
+            val = max(
+                self.MinAgent(gameState.generateSuccessor(0, action), depth, 1), val
+            )
+            
+        return val
+
+    def MinAgent(self, gameState: GameState, depth, ghost):
+        if self.endAgent(gameState, depth):
+            return self.evaluationFunction(gameState)
+
+        # calculamos o pior caso de cada movimento possível
+        val = 9223372036854775807
+        for action in gameState.getLegalActions(ghost):
+            if (ghost == self.ghosts):
+                # o último fantasma precisa selecionar o movimento do pacman que vai maximizar os pontos
+                val = min(
+                    val, self.MaxAgent(gameState.generateSuccessor(self.ghosts, action), depth + 1)
+                )
+            else:
+                # também precisa selecionar os movimentos dos outros fantasmas 
+                # que vão minimizar os pontos e verificar a pontuação feita
+                val = min(
+                    val, self.MinAgent(gameState.generateSuccessor(ghost, action), depth, ghost + 1)
+                )
+
+        return val
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
     Your minimax agent with alpha-beta pruning (question 3)
     """
+    def endAgent(self, gameState: GameState, depth, score):
+        return gameState.isWin() or gameState.isLose() or depth == self.depth
+
+    def MaxAgent(self, gameState: GameState, depth, alpha, beta):
+        if self.endAgent(gameState, depth):
+            return self.evaluationFunction(gameState)
+
+        # calculamos cada ação possível
+        val = -9223372036854775807
+        for action in gameState.getLegalActions(0):
+            val = max(
+                self.MinAgent(gameState.generateSuccessor(0, action), depth, 1), val
+            )
+            
+        return val
+
+    def MinAgent(self, gameState: GameState, depth, ghost, alpha, beta):
+        if self.endAgent(gameState, depth):
+            return self.evaluationFunction(gameState)
+
+        val = 9223372036854775807
+        for action in gameState.getLegalActions(ghost):
+            if (ghost == self.ghosts):
+                # o último fantasma precisa selecionar o movimento do pacman que vai maximizar os pontos
+                val = min(
+                    val, self.MaxAgent(gameState.generateSuccessor(self.ghosts, action), depth + 1)
+                )
+            else:
+                # também precisa selecionar os movimentos dos outros fantasmas 
+                # que vão minimizar os pontos e verificar a pontuação feita
+                val = min(
+                    val, self.MinAgent(gameState.generateSuccessor(ghost, action), depth, ghost + 1)
+                )
+
+        return val
 
     def getAction(self, gameState: GameState):
         """
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        self.ghosts = gameState.getNumAgents() - 1
+
+        res = [(action, self.MinAgent(gameState.generateSuccessor(0, action), 0, 1, 0)) for action in
+               gameState.getLegalActions(0)]
+        res.sort(key=lambda k: k[1])
+
+        return res[-1][0]
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
