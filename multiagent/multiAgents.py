@@ -356,7 +356,93 @@ def betterEvaluationFunction(currentGameState: GameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    def endAgent(gameState: GameState, depth, max_depth):
+        return gameState.isWin() or gameState.isLose() or depth == max_depth
+
+    def MaxAgent(gameState: GameState, depth, max_depth, alpha, beta, ghost_num):
+        if endAgent(gameState, depth, max_depth):
+            newPos = gameState.getPacmanPosition()
+            newFood = gameState.getFood()
+            newGhostStates = gameState.getGhostStates()
+            newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+            score = gameState.getScore()
+            
+            distFantasma = 99999
+            distAmendrontado = 99999
+            for ghostState in newGhostStates:
+                dist = manhattanDistance(newPos, ghostState.getPosition())
+                # vamos morrer :(
+                if (ghostState.scaredTimer == 0 and dist <= 1):
+                    return -1
+                spawn = ghostState.start.pos
+
+                if (dist <= ghostState.scaredTimer and manhattanDistance(newPos, spawn) > 1):
+                    distAmendrontado = min(dist, distAmendrontado)
+                else:
+                    distFantasma = min(dist, distFantasma)
+            
+            distFantasma = 10 / distFantasma
+            
+            distAmendrontado = 300 / max(distAmendrontado, 1)
+                
+            if newPos in newFood.asList():
+                distComida = 10
+            else:
+                distComida = 10 / min(
+                    [manhattanDistance(comida, newPos) for comida in newFood.asList()], default=1
+                )
+                
+            return score + distAmendrontado + distComida - distFantasma 
+            return gameState.getScore()
+
+        # calculamos cada ação possível
+        val = float("-inf")
+        best_action = gameState.getLegalActions(0)[0]
+        for action in gameState.getLegalActions(0):
+            aux = MinAgent(gameState.generateSuccessor(0, action), depth, max_depth, 1, alpha, beta, ghost_num)
+            if (aux > val):
+                val = aux
+                best_action = action
+            # pruning
+            if (val > beta):
+                return val
+            alpha = max(alpha, val)
+        # atualiza movimento a se fazer
+        # if (depth == 0):
+        #     return best_action
+            
+        return val
+
+    def MinAgent(gameState: GameState, depth, max_depth, ghost, alpha, beta, ghost_num):
+        if endAgent(gameState, depth, max_depth):
+            return gameState.getScore()
+
+        val = float("inf")
+        for action in gameState.getLegalActions(ghost):
+            if (ghost == ghost_num):
+                # o último fantasma precisa selecionar o movimento do pacman que vai maximizar os pontos
+                val = min(
+                    val, MaxAgent(gameState.generateSuccessor(ghost, action), depth + 1, max_depth, alpha, beta, ghost_num)
+                )
+            else:
+                # também precisa selecionar os movimentos dos outros fantasmas 
+                # que vão minimizar os pontos e verificar a pontuação feita
+                val = min(
+                    val, MinAgent(gameState.generateSuccessor(ghost, action), depth, max_depth, ghost + 1, alpha, beta, ghost_num)
+                )
+            # pruning
+            if (val < alpha):
+                return val
+            beta = min(beta, val)
+
+        return val
+
+    ## fim funcs
+    
+    ghosts = currentGameState.getNumAgents() - 1
+    return MaxAgent(currentGameState, 0, 1, float("-inf"), float("inf"), ghosts)
+
+
 
 # Abbreviation
 better = betterEvaluationFunction
